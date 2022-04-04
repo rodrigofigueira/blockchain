@@ -1,3 +1,4 @@
+from crypt import methods
 import datetime
 import hashlib
 import json
@@ -6,7 +7,7 @@ from flask import Flask, jsonify
 class Blockchain:
     def __init__(self):
         self.chain = []
-        self.create_block(proof = 1, previous_hash='0')
+        self.create_block(proof = 1, previous_hash = '0')
 
     def create_block(self, proof, previous_hash):
         block = { 'index'           : len(self.chain) + 1
@@ -54,3 +55,18 @@ class Blockchain:
 app = Flask(__app__)
 
 blockchain = Blockchain()
+
+@app.route('/mine_block', methods = ['GET'])
+def mine_block():
+    previous_block = blockchain.get_previous_block()
+    previous_proof = previous_block['proof']
+    proof = blockchain.proof_of_work(previous_proof)
+    previous_hash = blockchain.hash(previous_block)
+    block = blockchain.create_block(proof, previous_hash)
+    response = {'message' : 'Parabéns vc minerou um bloco',
+                'index' : block['index'],
+                'timestamp' : block['timestamp'],
+                'proof' : block['proof'],
+                'previous_hash' : block['previous_hash']
+                }
+    return jsonify(response), 200
