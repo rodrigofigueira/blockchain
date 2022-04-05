@@ -1,6 +1,7 @@
-from crypt import methods
+#from crypt import methods
 import datetime
 import hashlib
+#from itertools import chain
 import json
 from flask import Flask, jsonify
 
@@ -52,7 +53,7 @@ class Blockchain:
             block_index += 1
         return True
 
-app = Flask(__app__)
+app = Flask(__name__)
 
 blockchain = Blockchain()
 
@@ -70,3 +71,12 @@ def mine_block():
                 'previous_hash' : block['previous_hash']
                 }
     return jsonify(response), 200
+
+@app.route('/get_chain', methods = ['GET'])
+def get_chain():
+    response = {'chain'  : blockchain.chain,
+                'length' : len(blockchain.chain)
+               }
+    return jsonify(response), 200
+
+app.run(host='0.0.0.0', port=5000)
